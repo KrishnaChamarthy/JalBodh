@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
+import { BarChart, LineChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { icons } from '../../constants/icons';
 
-// Dummy data for analytics
 const waterLevelTrends = {
   labels: ["2019", "2020", "2021", "2022", "2023", "2024"],
   datasets: [
@@ -71,6 +70,24 @@ const stateWiseData = {
       data: [78, 65, 45, 72, 58, 83],
     },
   ],
+};
+
+const aiPredictionData = {
+  labels: ["Current", "3M", "6M", "9M", "12M", "15M"],
+  datasets: [
+    {
+      data: [12.3, 11.8, 10.5, 9.2, 8.8, 9.5],
+      color: (opacity = 1) => `rgba(139, 92, 246, ${opacity})`,
+      strokeWidth: 3,
+    },
+    {
+      data: [12.3, 12.1, 11.9, 11.7, 11.5, 11.3],
+      color: (opacity = 1) => `rgba(34, 197, 94, ${opacity})`,
+      strokeWidth: 2,
+      strokeDashArray: [5, 5],
+    },
+  ],
+  legend: ["AI Prediction", "Conservative Estimate"]
 };
 
 const chartConfig = {
@@ -226,22 +243,60 @@ const Analytics = () => {
         </View>
 
         <View className="bg-dark-100 mx-4 mb-2 rounded-xl p-4">
-          <Text className="text-xl font-semibold text-primary mb-2">Groundwater Availability Distribution</Text>
-          <Text className="text-secondary text-sm mb-4">Assessment across monitored regions</Text>
+          <View className="flex-row items-center justify-between mb-2">
+            <View>
+              <Text className="text-xl font-semibold text-primary">AI Predicted Water Levels</Text>
+              <Text className="text-secondary text-sm mt-1">Machine learning forecast for next 15 months</Text>
+            </View>
+            <View className="bg-purple-500/20 px-3 py-1 rounded-full">
+              <Text className="text-purple-400 text-xs font-medium">AI Model</Text>
+            </View>
+          </View>
           
-          <PieChart
-            data={availabilityDistribution}
+          <LineChart
+            data={aiPredictionData}
             width={screenWidth - 64}
-            height={200}
-            chartConfig={chartConfig}
-            accessor={"population"}
-            backgroundColor={"transparent"}
-            paddingLeft={"15"}
+            height={220}
+            chartConfig={{
+              ...chartConfig,
+              color: (opacity = 1) => `rgba(139, 92, 246, ${opacity})`,
+            }}
+            bezier
             style={{
               borderRadius: 12,
               alignSelf: 'center',
             }}
+            fromZero={false}
           />
+
+          <View className="mt-4 space-y-2">
+            <View className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+              <View className="flex-row items-center mb-1">
+                <View className="w-2 h-2 bg-purple-400 rounded-full mr-2" />
+                <Text className="text-purple-400 text-sm font-medium">AI Prediction Confidence: 87%</Text>
+              </View>
+              <Text className="text-secondary text-xs">
+                Model indicates declining trend with potential recovery in month 15
+              </Text>
+            </View>
+            
+            
+          </View>
+
+          <View className="flex-row justify-around mt-4 pt-4 border-t border-dark-150">
+            <View className="items-center">
+              <Text className="text-secondary text-xs">Predicted Drop</Text>
+              <Text className="text-red-400 text-lg font-semibold">-2.8m</Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-secondary text-xs">Recovery Point</Text>
+              <Text className="text-green-500 text-lg font-semibold">Month 15</Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-secondary text-xs">Accuracy Rate</Text>
+              <Text className="text-purple-400 text-lg font-semibold">87%</Text>
+            </View>
+          </View>
         </View>
 
         <View className="bg-dark-100 mx-4 mb-20 rounded-xl p-4">

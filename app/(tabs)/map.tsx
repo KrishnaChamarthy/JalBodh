@@ -1,5 +1,6 @@
 import MapCard from "@/components/MapCard";
 import SearchBar from "@/components/SearchBar";
+import { setRegion } from "@/store/mapDataSlice";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView
@@ -9,7 +10,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import MapView, { Marker } from "react-native-maps";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { icons } from "../../constants/icons";
 import stationsDataRaw from "../../constants/stationsInfo.json";
 import { getStationsByState, Station } from "../../utils/stationUtils";
@@ -69,6 +70,8 @@ const chartConfig = {
 
 
 const Map = () => {
+    const dispatch = useDispatch();
+
   const mapRef = useRef<MapView>(null);
   const snapPoints = useMemo(() => ["25%", "75%"], []);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -91,6 +94,20 @@ const Map = () => {
       });
     }
   };
+
+  const handleStationPress = (station: Station) => {
+        const newRegion = `${station.Station_Name}, ${station.District_Name || ''}, ${station.State_Name}`.replace(', ,', ',');
+    dispatch(setRegion(newRegion));
+if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: station.Latitude,
+        longitude: station.Longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }, 1000);
+    }
+
+  }
 
   const stationsData = stationsDataRaw as { Table: Station[] };
   const markers: Station[] = useMemo(
@@ -127,6 +144,7 @@ const Map = () => {
                 station.State_Name +
                 (station.District_Name ? ", " + station.District_Name : "")
               }
+              onPress={() => handleStationPress(station)}
             />
           ))}
       </MapView>
